@@ -1,0 +1,3 @@
+Here will be some data as .csv to download.
+
+Database has values for every 5 minutes.

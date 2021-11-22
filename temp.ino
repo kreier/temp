@@ -18,6 +18,7 @@ void setup() {
   pinMode(ledPin, OUTPUT);
   Serial.begin(115200);
   Serial.println("Let's start!");
+  Serial.println("This is version v0.1.20211122");  
 }
 
 void loop() {

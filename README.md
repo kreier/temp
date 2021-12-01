@@ -12,9 +12,17 @@ Test framework for remote data collection and visualization
   - Data read from a database MySQL via PHP on the website
 - Backend of website
   - Data can be submitted via json
-  - Data files are created into the /data subfolder
+  - Data files are created into the [/data](https://kreier.org/temp/data/) subfolder
 
 ## History
+
+### 2021/12/01 Start physical site
+
+Some scaffold data was uploaded to [kreier.org/temp/](https://kreier.org/temp/). Now you get a http response.
+
+Further inspiration is taken from Rui Santos and an example from Germany:
+- [https://randomnerdtutorials.com/esp32-esp8266-mysql-database-php/](https://randomnerdtutorials.com/esp32-esp8266-mysql-database-php/)
+- [http://wetter.cuprum.de/](http://wetter.cuprum.de/)
 
 ### 2021/11/19 New start with ESP32
 

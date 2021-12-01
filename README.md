@@ -12,7 +12,7 @@ Test framework for remote data collection and visualization
   - Data read from a database MySQL via PHP on the website
 - Backend of website
   - Data can be submitted via json
-  - Data files are created into the [https://kreier.org/temp/data/](/data) subfolder
+  - Data files are created into the [/data](https://kreier.org/temp/data/) subfolder
 
 ## History
 

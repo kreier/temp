@@ -16,6 +16,14 @@ Test framework for remote data collection and visualization
 
 ## History
 
+### 2021/12/01 Start physical site
+
+Some scaffold data was uploaded to [kreier.org/temp/](https://kreier.org/temp/). Now you get a http response.
+
+Further inspiration is taken from Rui Santos and an example from Germany:
+- [https://randomnerdtutorials.com/esp32-esp8266-mysql-database-php/](https://randomnerdtutorials.com/esp32-esp8266-mysql-database-php/)
+- [http://wetter.cuprum.de/](http://wetter.cuprum.de/)
+
 ### 2021/11/19 New start with ESP32
 
 The project was sticking in my head for some time. I would need this framework as foundation for larger data collection projects like solar- and wind data. The new project [github.com/kreier/temp](https://github.com/kreier/temp/) was born.

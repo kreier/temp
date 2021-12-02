@@ -1,40 +1,45 @@
-/* temp */
-// LORA915:        2   and ESP8266 NodeMCU, D1 R32 (Arduino size), DOIT ESP32 DEVKIT V1
-// Wemos LOLIN32:  4
-// T-Koala:        5   and T-Energy, 
-// ATMega2560:    13   and Arduino Uno, Leonardo
-// T8 V1.7:       21
-// WeMos lite:    22
-// TTGO LoRa      25  (not populated)
+// Original sniplet v0.1 from 2020/10/26 - uploaded again more than a year later
+// https://github.com/kreier/ESP32/blob/master/sniplets/temp_LM35/temp_LM35.ino
+//
+// temperature measurement with LM35 v0.2 2021/12/01
+//                                   v0.1 2020/10/26
+//                                 ____
+// pins on LM 35    1 -- 4-20V --- |   \
+//                  2 -- OUT ----- |    |
+//                  3 -- GND ----- |___/
+//
+// conversion digital value -> voltage: v = 0.826x + 150     in millivolt
+// conversion voltage -> temperature:   T = v / 10           since 10 mV per degree Celcius
 
-// int ledPin = LED_BUILTIN;
-int ledPin = 2;
-bool light = HIGH;    // LORA915, T-Koala, T8, Arduino
-//bool light = LOW;   // WEMOS Lite, ESP8266 NODEMCU
-bool dark  = !light;
+
+const int ledPin = 2;
+const bool light = HIGH;
+const bool dark  = !light;
+const int tempPin = 4;
+
 int count = 0; 
+int tempValue = 0;
+float temperature = 0;
 
 void setup() {
   pinMode(ledPin, OUTPUT);
   Serial.begin(115200);
   Serial.println("Let's start!");
-  Serial.println("This is version v0.1.20211122");  
-}
+}  
 
 void loop() {
   digitalWrite(ledPin, light);
-  Serial.print("LED on ");
-  delay(50);
-  digitalWrite(ledPin, dark);
-  delay(100);
-  digitalWrite(ledPin, light);
-  delay(50);
-  digitalWrite(ledPin, dark);
-  Serial.print("LED off ");
-  count++;
-  if(count > 6) {
-    count = 0;
-    Serial.println(ledPin);
+  tempValue = 0;
+  // measure 100x
+  for(int i = 0; i < 100; i++) {
+    tempValue += analogRead(tempPin);
   }
-  delay(2000);
+  temperature = tempValue / 100;  // from multisampling
+  temperature = 0.826 * temperature + 150;
+  temperature = temperature / 10; 
+  //Serial.print("Temperature right now: ");
+  Serial.println(temperature);
+  delay(10);
+  digitalWrite(ledPin, dark);
+  delay(1000);
 }

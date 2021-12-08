@@ -1,16 +1,17 @@
-/* temp */
-// LORA915:        2   and ESP8266 NodeMCU, D1 R32 (Arduino size), DOIT ESP32 DEVKIT V1
-// Wemos LOLIN32:  4
-// T-Koala:        5   and T-Energy, 
-// ATMega2560:    13   and Arduino Uno, Leonardo
-// T8 V1.7:       21
-// WeMos lite:    22
-// TTGO LoRa      25  (not populated)
+// boot 
+//
+// submits successfull boot and wifi to
+// http://temp.kreier.org/boot/boot.php
+// results at
+// https://kreier.org/temp/boot/
+//
+// Version 0.1.20121208
+//
 
-// int ledPin = LED_BUILTIN;
+char version[14] = "0.1.20211208";
+
 int ledPin = 2;
 bool light = HIGH;    // LORA915, T-Koala, T8, Arduino
-//bool light = LOW;   // WEMOS Lite, ESP8266 NODEMCU
 bool dark  = !light;
 int count = 0; 
 
@@ -18,7 +19,20 @@ void setup() {
   pinMode(ledPin, OUTPUT);
   Serial.begin(115200);
   Serial.println("Let's start!");
-  Serial.println("This is version v0.1.20211122");  
+  Serial.print("This is version ");
+  Serial.println(version);
+  char ssid[23];
+  uint64_t chipid = ESP.getEfuseMac(); // The chip ID is essentially its MAC address(length: 6 bytes).
+  uint16_t chip = (uint16_t)(chipid >> 32); // copy highest 16 bit from chipid (48bit) to chip (16 bit)
+  snprintf(ssid, 23, "MCUDEVICE-%04X%08X", chip, (uint32_t)chipid);
+  Serial.print("The serial number is ");
+  Serial.println(ssid);
+  uint32_t chip2 = (uint32_t)(chipid);
+  Serial.println(chip);
+  Serial.println(chip, HEX);
+  Serial.println(chip2);
+  Serial.println(chip2, HEX);
+  //Serial.print(chipid);
 }
 
 void loop() {
@@ -36,5 +50,5 @@ void loop() {
     count = 0;
     Serial.println(ledPin);
   }
-  delay(2000);
+  delay(10000);
 }

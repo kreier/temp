@@ -28,7 +28,7 @@ import vga1_16x32 as font
 
 def main():
     tft = st7789.ST7789(
-        SPI(2, baudrate=30000000, polarity=1, phase=1, sck=Pin(18), mosi=Pin(19)),
+        SPI(2, baudrate=30000000, polarity=1, phase=1, sck=Pin(18), mosi=Pin(19), miso=Pin(14)),
         135,
         240,
         reset=Pin(23, Pin.OUT),

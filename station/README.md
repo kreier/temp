@@ -13,7 +13,9 @@ esptool.exe --port COM23 erase_flash
 esptool.exe --port COM23 write_flash -z 0x1000 firmware.bin
 ```
 
-Programming was done with Thonny. It only works with MicroPython v1.12 and v1.17.
+Programming was done with Thonny. Since MicroPython v1.14 you have to explicit declare the MISO pin, even though it is not used.
+
+![t-display-2022](t-display_2022.jpg)
 
 ``` py
 from machine import Pin, SPI
@@ -29,7 +31,7 @@ black = st7789.color565(0,0,0)
 
 def main():
     tft = st7789.ST7789(
-        SPI(2, baudrate=30000000, polarity=1, phase=1, sck=Pin(18), mosi=Pin(19)),
+        SPI(2, baudrate=30000000, polarity=1, phase=1, sck=Pin(18), mosi=Pin(19)), miso=Pin(14),
         135, 240,
         reset = Pin(23, Pin.OUT),
         cs    = Pin(5,  Pin.OUT),

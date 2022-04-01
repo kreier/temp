@@ -1,6 +1,17 @@
 # Temp project - measurement station
 
-## Code in MicroPython with a T-Display
+
+
+
+## Actual measurement of the Temperature and LiPo Voltage - April 1st, 2022
+
+The LM35 is powered by 3.3 Volt and the output voltage (v/10) gives the temperature, since 10 mV per degree Celsius are created.
+
+
+
+
+
+## Third setup from March 26, 2022 - with a TTGO T-Display
 
 This setup allows for easier debugging, direct response in REPL and on the display.
 

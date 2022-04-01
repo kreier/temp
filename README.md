@@ -1,5 +1,8 @@
 # Temp
-Test framework for remote data collection and visualization
+[![GitHub release](https://img.shields.io/github/release/kreier/temp.svg)](https://GitHub.com/kreier/temp/releases/)
+[![MIT license](https://img.shields.io/github/license/kreier/temp)](https://kreier.mit-license.org/)
+
+Test framework for remote data collection and visualization. Here is [a document on how it works](documentation.md).
 
 ## Components of this project
 

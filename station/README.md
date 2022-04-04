@@ -251,3 +251,16 @@ Further extensions can include
 - Have the station powered by a LiIon backup battery
 - Check battery voltage and adjust power consumption (deep_sleep) accordingly
 - Store measurements locally if submission to the database is not possible
+
+## Setup from December 16, 2020
+
+As a proof of concept setup I used a cheap ESP8266 board and a LM35 temperature sensor to replicate my setup from 2013.
+
+![Setup 2020](https://github.com/kreier/temp.hofkoh.de/blob/main/documentation/2020_esp8266.jpg)
+
+## Project start 2013 - documentation on github
+
+The initial setup needed a small linux system on a TP-Link router (OpenWRT) and a 1wire sensor for the temperature with a USB interface. But it worked for some years!
+
+[https://github.com/kreier/temp.hofkoh.de](https://github.com/kreier/temp.hofkoh.de)
+

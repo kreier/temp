@@ -1,7 +1,19 @@
 # Temp project - measurement station
 
+Data and details can be found at:
 
+- https://io.adafruit.com/kreier/dashboards/temperature
+- https://io.adafruit.com/kreier/feeds/temperature
+- https://io.adafruit.com/kreier/feeds/lipo
 
+And for the solar project:
+- https://io.adafruit.com/emwdx/dashboards/solar-dash
+- https://io.adafruit.com/emwdx/feeds/solar-stuff-2 for voltage
+- https://io.adafruit.com/emwdx/feeds/solar-stuff-1 for current
+- https://io.adafruit.com/kreier/dashboards/ssis-solar
+- https://io.adafruit.com/kreier/feeds/voltage
+- https://io.adafruit.com/kreier/feeds/current
+- https://io.adafruit.com/kreier/feeds/memory
 
 ## Actual measurement of the Temperature and LiPo Voltage - April 1st, 2022
 
@@ -14,6 +26,26 @@ The LM35 is powered by 3.3 Volt and the output voltage (v/10) gives the temperat
 ## Third setup - with a TTGO T-Display
 
 This setup allows for easier debugging, direct response in REPL and on the display.
+
+### April 11th, 2022 - publish temperature and voltage to Adafruit IO via MQTT and display on the TFT
+
+It takes a few test cycles to get the MQTT station talk to the broker at Adafruit (`unique_id` and `user` and `password` as well as `is_connected` challenges) with Micropython instead of Circuitpython and the provided libraries. But eventually the data is submitted every 60 seconds. In parallel the TFT shows which steps are currently done, before reducing the current consumption from 69mA to 9mA when going to `machine.lightsleep(60000)`.
+
+https://user-images.githubusercontent.com/43933271/162670978-924e22cc-f871-41c0-9fe6-df1d4c08fd56.mov
+
+![Video with TFT MQTT cycle 12 seconds](2022-04-11_mqtt_tft.mov)
+
+A few other details could be noticed. The voltage pin for measuring the temperature is moved from pin 12 to pin 36 and therefore from ADC2 to ADC1. It is one of the limitations of the ESP32 that the second ADC can't be used when WiFi is used. There are some workarounds and hacks with register entries, but the current solution provides for 7 usable analog inputs. And their limitation is a minimum voltage of 110 - 150 mV until they produce a reading. 
+
+The obvious choice is to move to the T-Display with the ESP32-S2. No ADC limitations for voltage or pins, support for Circuitpython and SD-Card reader. Though the LiPo battery pin is not connected to the voltage divider input pin, but that is easier to solve.
+
+#### Memory leak
+
+The fourth line on the TFT display reads the free memory from the garbage collector `gc.mem_free()`. It is constantly decreasing until no more submission over WIFI is done, but no error message is given. We publish this to MQTT as well and see the declining memory:
+
+![Decreasing free memory](2022-04-10_memory_leak.jpg)
+
+The workaround: Measure the free memory, and collect the trash using `gc.collect()` one the value is below a certain threshold. In case of our Metro ESP32-S2 setup, we just collect every 20 seconds.
 
 ### April 4th, 2022 - measuring temperature and LiPo voltage
 

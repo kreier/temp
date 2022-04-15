@@ -5,7 +5,7 @@ import st7789, time
 
 import vga1_16x32 as font
 
-pin_temp = ADC(Pin(12))
+pin_temp = ADC(Pin(36))
 pin_temp.atten(ADC.ATTN_11DB)  # full range: 3.3V
 pin_lipo = ADC(Pin(34))
 pin_lipo.atten(ADC.ATTN_11DB)

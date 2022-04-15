@@ -1,4 +1,4 @@
-# /micropython/apps/temperature_mqtt_json.py  2022-04-10
+# /micropython/apps/temperature_tft_mqtt.py  2022-04-15
 
 import network
 import secrets
@@ -21,6 +21,7 @@ last_msg  = 0
 client_id = b'10521c66507c'
 white = st7789.color565(255,255,255)
 black = st7789.color565(0,0,0)
+green = st7789.color565(0,255,0)
 
 aio_topic1 = secrets["aio_username"] + "/feeds/temperature"
 aio_topic2 = secrets["aio_username"] + "/feeds/lipo"
@@ -112,6 +113,15 @@ def aio_send(message1, message2, message3):
 #            time.sleep(1)
 #        print('.', end='')
 
+def print_temp_lipo():
+    temp_raw = supersample(pin_temp, 100)
+    lipo_raw = supersample(pin_lipo, 100)
+    freemem = gc.mem_free()
+    text_temp = "{:.1f}".format(temp_raw * 0.0793 + 10.8)
+    text_lipo = "{:.3f}".format((lipo_raw * 0.000793 + 0.108) * 2)
+    tft.text(font, text_temp + " C  " + text_lipo + " V",    0,  64, green, black)
+    tft.text(font, "Memory: " + str(freemem),    0,  96, green, black)    
+
 ##### Here is where the real program starts
 
 tft = st7789.ST7789(
@@ -126,6 +136,7 @@ tft = st7789.ST7789(
 
 tft.init()
 tft.text(font, "Connect WIFI",    0,   0, white, black)
+print_temp_lipo()
 
 print("Connecting to %s " % secrets["ssid"], end='')
 wifi_start()

@@ -1,10 +1,15 @@
-# /micropython/apps/temperature_tft_mqtt.py  2022-04-15
+# /micropython/apps/temperature_tft_mqtt.py  2022-05-04
+#
+# 2022-05-04 implemented start and stop button
+# 2022-04-15 color coded success for connect and transmit
+# 2022-04-13 light sleep 1 minute to save battery
 
 import network
 import secrets
 import time
 import gc
 import machine
+import sys
 from mqtt import MQTTClient 
 from machine import Pin, SPI
 import st7789
@@ -20,8 +25,10 @@ start     = 0
 last_msg  = 0
 client_id = b'10521c66507c'
 white = st7789.color565(255,255,255)
-black = st7789.color565(0,0,0)
+blue  = st7789.color565(0,0,255)
 green = st7789.color565(0,255,0)
+red   = st7789.color565(255,0,0)
+black = st7789.color565(0,0,0)
 
 aio_topic1 = secrets["aio_username"] + "/feeds/temperature"
 aio_topic2 = secrets["aio_username"] + "/feeds/lipo"
@@ -33,6 +40,10 @@ pin_temp = machine.ADC(machine.Pin(36))
 pin_temp.atten(machine.ADC.ATTN_11DB)  # full range: 3.3V
 pin_lipo = machine.ADC(machine.Pin(34))
 pin_lipo.atten(machine.ADC.ATTN_11DB)
+
+button1 = machine.Pin(35, machine.Pin.IN)
+button2 = machine.Pin(0,  machine.Pin.IN)
+
 
 def sub_cb(topic, msg):
     last_msg = float(msg.decode('UTF-8'))
@@ -135,12 +146,13 @@ tft = st7789.ST7789(
     rotation=1)
 
 tft.init()
-tft.text(font, "Connect WIFI",    0,   0, white, black)
+tft.text(font, "Connect WIFI",    0,   0, red, black)
 print_temp_lipo()
 
 print("Connecting to %s " % secrets["ssid"], end='')
 wifi_start()
-print("\nConnection to Wifi successful.") 
+print("\nConnection to Wifi successful.")
+tft.text(font, "Connected WIFI",    0,   0, green, black)
  
 client = MQTTClient(client_id, "io.adafruit.com", user=secrets["aio_username"], password=secrets["aio_password"], port=1883) 
 client.set_callback(sub_cb)
@@ -148,14 +160,24 @@ tft.text(font, "Connect AIO",    0,  32, white, black)
 print("Connecting to AIO ...")
 while not aio_connect():
     pass
-    
+
+tft.text(font, "Connected AIO",    0,  32, green, black)
+
+while (button1.value() == 1):
+    tft.text(font, "Key: {0} & {1}".format(button1.value(), button2.value()),  0,  96, white, black)
+    if(button2.value() == 0):
+        sys.exit()
+    time.sleep(0.2)
+
+
 while True:
     temp_raw = supersample(pin_temp, 100)
     lipo_raw = supersample(pin_lipo, 100)
     freemem = gc.mem_free()
+    tft.text(font, "Memory: " + str(freemem),    0,  96, red, black)
     text_temp = "{:.1f}".format(temp_raw * 0.0793 + 10.8)
     text_lipo = "{:.3f}".format((lipo_raw * 0.000793 + 0.108) * 2)
-    tft.text(font, text_temp + " C  " + text_lipo + " V",    0,  64, white, black)
+    tft.text(font, text_temp + " C  " + text_lipo + " V",    0,  64, red, black)
     #json = '{ "value": {"temp": ' + text_temp + ', "liion": ' + text_lipo + ', "mem-free": ' + str(freemem) + '}, '
     #json += '"lat": 38.1123, "lon": -91.2325, "ele": 112 }'
     #print(json)
@@ -163,11 +185,12 @@ while True:
     start = time.ticks_ms()
     aio_send(text_temp, text_lipo, str(freemem))
     print("The roundtrip for this message took {:.0f} milliseconds. Bytes free:".format(time.ticks_ms() - start - 1000), freemem)
+    tft.text(font, text_temp + " C  " + text_lipo + " V",    0,  64, white, black)
     if freemem < 50000:
         gc.collect()
     tft.text(font, "Memory: " + str(freemem),    0,  96, white, black)
     time.sleep(3)
-    machine.lightsleep(54000)
+    machine.lightsleep(294000)   # 5 minutes minus 6 seconds
     tft.text(font, "...................................",    0,  64, white, black)
     time.sleep(3)
 

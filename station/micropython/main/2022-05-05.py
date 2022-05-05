@@ -165,8 +165,9 @@ while not aio_connect():
 tft.text(font, "Connected AIO",    0,  32, green, black)
 
 start = time.ticks_ms()
+print("Waiting {0} seconds if interrupted by button2 (Push the button!!)".format(int(countdown/1000)))
 while (time.ticks_ms() - start < countdown):
-    tft.text(font, "{0}  Exit -->      ".format(int((countdown - time.ticks_ms() + start)/100)/10),  0,  96, white, black)
+    tft.text(font, "{0} s  Exit -->      ".format(int((countdown - time.ticks_ms() + start)/100)/10),  0,  96, white, black)
     if(button2.value() == 0):
         tft.text(font, "Enter REPL      ",    0,  0, blue, black)   
         tft.text(font, "               .",    0, 32, blue, black)           
@@ -178,7 +179,7 @@ while True:
     temp_raw = supersample(pin_temp, 100)
     lipo_raw = supersample(pin_lipo, 100)
     freemem = gc.mem_free()
-    tft.text(font, "Memory: " + str(freemem),    0,  96, red, black)
+    tft.text(font, "Memory: " + str(freemem) + "   ",    0,  96, red, black)
     text_temp = "{:.1f}".format(temp_raw * 0.0793 + 10.8)
     text_lipo = "{:.3f}".format((lipo_raw * 0.000793 + 0.108) * 2)
     tft.text(font, text_temp + " C  " + text_lipo + " V",    0,  64, red, black)
@@ -192,12 +193,14 @@ while True:
     tft.text(font, text_temp + " C  " + text_lipo + " V",    0,  64, white, black)
     if freemem < 50000:
         gc.collect()
-    tft.text(font, "Memory: " + str(freemem),    0,  96, white, black)
+    tft.text(font, "Memory: " + str(freemem) + "   ",    0,  96, white, black)
     time.sleep(0.5)
-    tft.text(font, "Going Deepsleep" + str(freemem),    0,  0, blue, black)   
+    tft.text(font, "Going Deepsleep" ,    0,  0, blue, black)
+    print("Now going to Deepsleep for 5 minutes.")
     time.sleep(0.5)
-    tft.text(font, "for 5 minutes  " + str(freemem),    0,   32,blue, black)   
+    tft.text(font, "for 5 minutes  " ,    0,   32,blue, black)   
     time.sleep(2)
+    print(".")
 #    machine.lightsleep(294000)   # 5 minutes minus 6 seconds
     machine.deepsleep(297000)   # 5 minutes minus 3 seconds
     tft.text(font, "...................................",    0,  64, white, black)

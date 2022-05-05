@@ -116,6 +116,7 @@ def aio_send(message1, message2, message3):
                 pass
             
         time.sleep(1) # take a second between each attempt
+        print("\nI waited another second")
 #        if failure == False:
 #            try:
 #                failure = True
@@ -189,7 +190,7 @@ while True:
     print("Sending:", text_temp, "and", text_lipo, end=' ')
     start = time.ticks_ms()
     aio_send(text_temp, text_lipo, str(freemem))
-    print("The roundtrip for this message took {:.0f} milliseconds. Bytes free:".format(time.ticks_ms() - start - 1000), freemem)
+    print("The roundtrip for this message took {:.0f} milliseconds. Bytes free:".format(time.ticks_ms() - start - 3000), freemem)
     tft.text(font, text_temp + " C  " + text_lipo + " V",    0,  64, white, black)
     if freemem < 50000:
         gc.collect()

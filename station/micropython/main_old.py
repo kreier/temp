@@ -1,21 +1,14 @@
-# /micropython/apps/temperature_tft_mqtt.py  2022-05-06
-#
-# 2022-04-13 light sleep 1 minute to save battery
-# 2022-04-15 color coded success for connect and transmit
-# 2022-05-04 implemented start and stop button
-# 2022-05-06 Timer to abort automatic start: 10 seconds, now deepsleep 5 minutes
-# 2022-10-23 New attempt with micropython 1.19 to see if Wifi stays unstable
+# /micropython/apps/temperature_tft_mqtt.py  2022-04-13
 
 import network
 import secrets
 import time
 import gc
 import machine
-import sys
-from mqtt import MQTTClient
+from mqtt import MQTTClient 
 from machine import Pin, SPI
 import st7789
-import vga1_bold_16x32 as font # for 15x4 display
+import vga1_bold_16x32 as font
 
 try:
     from secrets import secrets
@@ -25,7 +18,6 @@ except ImportError:
 
 start     = 0
 last_msg  = 0
-countdown = 10000             # start timer to reset in milliseconds
 client_id = b'10521c66507c'
 white = st7789.color565(255,255,255)
 blue  = st7789.color565(0,0,255)
@@ -43,10 +35,6 @@ pin_temp = machine.ADC(machine.Pin(36))
 pin_temp.atten(machine.ADC.ATTN_11DB)  # full range: 3.3V
 pin_lipo = machine.ADC(machine.Pin(34))
 pin_lipo.atten(machine.ADC.ATTN_11DB)
-
-button1 = machine.Pin(35, machine.Pin.IN)
-button2 = machine.Pin(0,  machine.Pin.IN)
-
 
 def sub_cb(topic, msg):
     last_msg = float(msg.decode('UTF-8'))
@@ -115,9 +103,8 @@ def aio_send(message1, message2, message3):
             aio_connected = False
             while not aio_connect():
                 pass
-
+            
         time.sleep(1) # take a second between each attempt
-        print("\nI waited another second")
 #        if failure == False:
 #            try:
 #                failure = True
@@ -135,7 +122,7 @@ def print_temp_lipo():
     text_temp = "{:.1f}".format(temp_raw * 0.0793 + 10.8)
     text_lipo = "{:.3f}".format((lipo_raw * 0.000793 + 0.108) * 2)
     tft.text(font, text_temp + " C  " + text_lipo + " V",    0,  64, green, black)
-    tft.text(font, "Memory: " + str(freemem),    0,  96, green, black)
+    tft.text(font, "Memory: " + str(freemem),    0,  96, green, black)    
 
 ##### Here is where the real program starts
 
@@ -150,60 +137,39 @@ tft = st7789.ST7789(
     rotation=1)
 
 tft.init()
+tft.text(font, "Connect WIFI",    0,   0, white, black)
 print_temp_lipo()
 
-start = time.ticks_ms()
-print("Waiting {0} seconds if interrupted by button2 (Push the button!!)".format(int(countdown/1000)))
-while (time.ticks_ms() - start < countdown):
-    tft.text(font, "{0} s  Exit -->      ".format(int((countdown - time.ticks_ms() + start)/100)/10),  0,  96, white, black)
-    if(button2.value() == 0):
-        tft.text(font, "Enter REPL      ",    0,  0, blue, black)
-        tft.text(font, "               .",    0, 32, blue, black)
-        sys.exit()
-    time.sleep(0.1)
-
-tft.text(font, "Connect WIFI",    0,   0, red, black)
 print("Connecting to %s " % secrets["ssid"], end='')
 wifi_start()
-print("\nConnection to Wifi successful.")
-tft.text(font, "Connected WIFI",    0,   0, green, black)
-
-client = MQTTClient(client_id, "io.adafruit.com", user=secrets["aio_username"], password=secrets["aio_password"], port=1883)
+print("\nConnection to Wifi successful.") 
+ 
+client = MQTTClient(client_id, "io.adafruit.com", user=secrets["aio_username"], password=secrets["aio_password"], port=1883) 
 client.set_callback(sub_cb)
 tft.text(font, "Connect AIO",    0,  32, white, black)
 print("Connecting to AIO ...")
 while not aio_connect():
     pass
-
-tft.text(font, "Connected AIO",    0,  32, green, black)
-
+    
 while True:
     temp_raw = supersample(pin_temp, 100)
     lipo_raw = supersample(pin_lipo, 100)
     freemem = gc.mem_free()
-    tft.text(font, "Memory: " + str(freemem) + "   ",    0,  96, red, black)
     text_temp = "{:.1f}".format(temp_raw * 0.0793 + 10.8)
     text_lipo = "{:.3f}".format((lipo_raw * 0.000793 + 0.108) * 2)
-    tft.text(font, text_temp + " C  " + text_lipo + " V",    0,  64, red, black)
+    tft.text(font, text_temp + " C  " + text_lipo + " V",    0,  64, white, black)
     #json = '{ "value": {"temp": ' + text_temp + ', "liion": ' + text_lipo + ', "mem-free": ' + str(freemem) + '}, '
     #json += '"lat": 38.1123, "lon": -91.2325, "ele": 112 }'
     #print(json)
     print("Sending:", text_temp, "and", text_lipo, end=' ')
     start = time.ticks_ms()
     aio_send(text_temp, text_lipo, str(freemem))
-    print("The roundtrip for this message took {:.0f} milliseconds. Bytes free:".format(time.ticks_ms() - start - 3000), freemem)
-    tft.text(font, text_temp + " C  " + text_lipo + " V",    0,  64, white, black)
+    print("The roundtrip for this message took {:.0f} milliseconds. Bytes free:".format(time.ticks_ms() - start - 1000), freemem)
     if freemem < 50000:
         gc.collect()
-    tft.text(font, "Memory: " + str(freemem) + "   ",    0,  96, white, black)
-    time.sleep(0.5)
-    tft.text(font, "Going Deepsleep" ,    0,  0, blue, black)
-    print("Now going to Deepsleep for 5 minutes.")
-    time.sleep(0.5)
-    tft.text(font, "for 5 minutes  " ,    0,   32,blue, black)
-    time.sleep(2)
-    print(".")
-#    machine.lightsleep(294000)   # 5 minutes minus 6 seconds
-    machine.deepsleep(297000)   # 5 minutes minus 3 seconds
+    tft.text(font, "Memory: " + str(freemem),    0,  96, white, black)
+    time.sleep(3)
+    machine.lightsleep(54000)
     tft.text(font, "...................................",    0,  64, white, black)
     time.sleep(3)
+
